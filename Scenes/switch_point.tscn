@@ -1,0 +1,23 @@
+[gd_scene load_steps=4 format=3 uid="uid://dgeyxblvh6kmq"]
+
+[ext_resource type="Texture2D" uid="uid://c5glh5t7akn3m" path="res://Assets/house.png" id="1_0ajro"]
+[ext_resource type="Script" uid="uid://cwvmcnrv66ye0" path="res://Scripts/switch_point.gd" id="1_7oxnb"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_7oxnb"]
+size = Vector2(400, 292)
+
+[node name="SwitchPoint" type="Area2D"]
+script = ExtResource("1_7oxnb")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(0, -269.99997)
+scale = Vector2(5, 5)
+texture = ExtResource("1_0ajro")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(3, -146)
+shape = SubResource("RectangleShape2D_7oxnb")
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]
+[connection signal="body_exited" from="." to="." method="_on_body_exited"]
+[connection signal="input_event" from="." to="." method="_on_input_event"]

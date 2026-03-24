@@ -5,3 +5,4 @@
 [node name="Heart" type="TextureRect"]
 texture = ExtResource("1_452e1")
 expand_mode = 2
+stretch_mode = 5

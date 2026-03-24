@@ -8,6 +8,10 @@ var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
 @export var max_hp := 5
 var current_hp := 5
 @export var contact_damage := 1
+@export var knockback_force := 200.0
+@export var knockback_time := 0.2
+
+var knockback_timer := 0.0
 
 @onready var sprite_2d: Sprite2D = $Sprite2D
 @onready var animation_player: AnimationPlayer = $AnimationPlayer
@@ -20,12 +24,6 @@ var current_state: State = State.PATROL
 var previous_state: State = State.PATROL
 
 var patrol_dir := 1
-
-@export var attack_range := 40
-@export var attack_damage := 1
-@export var attack_cooldown := 1.0
-
-var can_attack := true
 
 func _ready():
     current_hp = max_hp
@@ -60,9 +58,7 @@ func update_state() -> void:
 
     var distance_to_player = global_position.distance_to(target.global_position)
 
-    if distance_to_player <= attack_range and can_attack:
-        current_state = State.ATTACK
-    elif distance_to_player < 100:
+    if distance_to_player < 100:
         current_state = State.CHASE
     else:
         current_state = State.PATROL
@@ -91,7 +87,10 @@ func handle_state(delta: float) -> void:
         State.CHASE:
             chase_behavior()
         State.HURT:
-            velocity.x = 0
+            knockback_timer -= delta
+    
+            if knockback_timer <= 0:
+                velocity.x = 0
         State.DEAD:
             velocity = Vector2.ZERO
         State.ATTACK:
@@ -135,13 +134,17 @@ func _on_hurt_box_area_entered(area: Area2D) -> void:
         
     if area.name == "hitbox":
         var player = area.get_parent()
-        take_damage(player.damage)
+        var dir = sign(global_position.x - player.global_position.x)
+        take_damage(player.damage, dir)
             
-func take_damage(amount: int):
+func take_damage(amount: int, dir: float):
     current_hp -= amount
     
     if current_hp > 0:
         current_state = State.HURT
+        velocity.x = dir * knockback_force
+        velocity.y = -100
+        knockback_timer = knockback_time
     else:
         current_state = State.DEAD
 
@@ -164,3 +167,4 @@ func get_target_player() -> Node2D:
             closest = p
 
     return closest
+    

@@ -1,4 +1,4 @@
-[gd_scene load_steps=16 format=3 uid="uid://cfmjlgnk8x6tl"]
+[gd_scene load_steps=15 format=3 uid="uid://cfmjlgnk8x6tl"]
 
 [ext_resource type="Script" uid="uid://cbgeayugeduq3" path="res://Scripts/first_enemy.gd" id="1_eqyok"]
 [ext_resource type="Texture2D" uid="uid://c35il12v7fk51" path="res://Assets/enemies/skeletons/Idle/Sword/Skeleton_Default_Fullpng.png" id="2_eqyok"]
@@ -7,7 +7,7 @@
 size = Vector2(20, 30)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_eqyok"]
-size = Vector2(145, 32)
+size = Vector2(145, 26)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_ohmy1"]
 size = Vector2(18, 29)
@@ -26,18 +26,6 @@ tracks/0/keys = {
 "transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1),
 "update": 1,
 "values": [18, 19, 20, 21, 22, 23]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("hitbox/CollisionShape2D:disabled")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.14229678, 0.4),
-"transitions": PackedFloat32Array(1, 1, 1),
-"update": 1,
-"values": [true, false, true]
 }
 
 [sub_resource type="Animation" id="Animation_eqyok"]
@@ -103,18 +91,6 @@ tracks/0/keys = {
 "update": 1,
 "values": [0]
 }
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("hitbox/CollisionShape2D:disabled")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 1,
-"values": [true]
-}
 
 [sub_resource type="Animation" id="Animation_kjjc8"]
 resource_name = "Run"
@@ -164,9 +140,6 @@ _data = {
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_5fhgn"]
 size = Vector2(20, 30)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_kjjc8"]
-size = Vector2(19, 32)
-
 [node name="First_enemy" type="CharacterBody2D"]
 script = ExtResource("1_eqyok")
 
@@ -188,7 +161,7 @@ debug_color = Color(0.7788471, 0.22577402, 0.91872066, 0.41960785)
 [node name="Detector" type="Area2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Detector"]
-position = Vector2(-1.5, -16)
+position = Vector2(-1.5, -13)
 shape = SubResource("RectangleShape2D_eqyok")
 debug_color = Color(0.9291122, 0, 0.27076158, 0.41960785)
 
@@ -215,16 +188,6 @@ libraries = {
 position = Vector2(0, -15)
 shape = SubResource("RectangleShape2D_5fhgn")
 debug_color = Color(0, 0.31366527, 0.3712191, 0.41960785)
-
-[node name="hitbox" type="Area2D" parent="."]
-collision_layer = 4
-collision_mask = 2
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="hitbox"]
-position = Vector2(-18.5, -16)
-shape = SubResource("RectangleShape2D_kjjc8")
-disabled = true
-debug_color = Color(0.8574078, 0.8584911, 3.465414e-06, 0.41960785)
 
 [connection signal="area_entered" from="HurtBox" to="." method="_on_hurt_box_area_entered"]
 [connection signal="body_entered" from="Detector" to="." method="_on_detector_body_entered"]

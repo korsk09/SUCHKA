@@ -19,10 +19,12 @@ func _input(event):
 func activate_a():
     player_b.visible = false
     player_b.process_mode = Node.PROCESS_MODE_DISABLED
+    player_b.get_node("hpBarTwo").visible = false
     
 
     player_a.visible = true
     player_a.process_mode = Node.PROCESS_MODE_INHERIT
+    player_a.get_node("hpBar").visible = true
     player_a.get_node("Camera2D").make_current()
 
     player_a.global_position = player_b.global_position
@@ -31,9 +33,11 @@ func activate_a():
 func activate_b():
     player_a.visible = false
     player_a.process_mode = Node.PROCESS_MODE_DISABLED
+    player_a.get_node("hpBar").visible = false
 
     player_b.visible = true
     player_b.process_mode = Node.PROCESS_MODE_INHERIT
+    player_b.get_node("hpBarTwo").visible = true
     player_b.get_node("Camera2D").make_current()
 
     player_b.global_position = player_a.global_position

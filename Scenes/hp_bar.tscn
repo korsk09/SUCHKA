@@ -8,5 +8,5 @@ script = ExtResource("1_a6djc")
 heart_scene = ExtResource("2_jc3dn")
 
 [node name="HBoxContainer" type="HBoxContainer" parent="."]
-offset_right = 40.0
-offset_bottom = 40.0
+offset_right = 80.0
+offset_bottom = 80.0

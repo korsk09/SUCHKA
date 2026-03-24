@@ -1,8 +1,11 @@
-[gd_scene load_steps=16 format=3 uid="uid://de1u0etab0oir"]
+[gd_scene load_steps=20 format=3 uid="uid://de1u0etab0oir"]
 
 [ext_resource type="Script" uid="uid://cd7n765pvw3pd" path="res://Scripts/player.gd" id="1_cvnsp"]
 [ext_resource type="Texture2D" uid="uid://bac8c56nwapi" path="res://Assets/player.png" id="2_cvnsp"]
 [ext_resource type="PackedScene" uid="uid://bu3mxkm6xqyo3" path="res://Scenes/hp_bar.tscn" id="3_6t5aa"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_vgqql"]
+size = Vector2(16, 14)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_cvnsp"]
 size = Vector2(16.734612, 23.047659)
@@ -33,6 +36,39 @@ tracks/1/keys = {
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 1,
 "values": [true, false, true]
+}
+
+[sub_resource type="Animation" id="Animation_pu2lt"]
+resource_name = "Crouch"
+length = 0.3
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.06666667, 0.13333334, 0.2),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [97, 98, 99, 100]
+}
+
+[sub_resource type="Animation" id="Animation_ukyrk"]
+resource_name = "CrouchWalk"
+length = 0.4
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.2),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [88, 89]
 }
 
 [sub_resource type="Animation" id="Animation_tx1dd"]
@@ -177,9 +213,27 @@ tracks/0/keys = {
 "values": [16, 17, 18, 19]
 }
 
+[sub_resource type="Animation" id="Animation_gymyn"]
+resource_name = "WallSlide"
+length = 0.4
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.2, 0.3),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [80, 81, 80, 81]
+}
+
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_f1ek2"]
 _data = {
 &"Attack": SubResource("Animation_3smsa"),
+&"Crouch": SubResource("Animation_pu2lt"),
+&"CrouchWalk": SubResource("Animation_ukyrk"),
 &"Dead": SubResource("Animation_tx1dd"),
 &"Fall": SubResource("Animation_x3wgy"),
 &"Hurt": SubResource("Animation_f1ek2"),
@@ -187,7 +241,8 @@ _data = {
 &"Jump": SubResource("Animation_fkybt"),
 &"RESET": SubResource("Animation_8erm5"),
 &"Run": SubResource("Animation_vgqql"),
-&"Walk": SubResource("Animation_6t5aa")
+&"Walk": SubResource("Animation_6t5aa"),
+&"WallSlide": SubResource("Animation_gymyn")
 }
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_6t5aa"]
@@ -197,13 +252,19 @@ size = Vector2(12, 28)
 script = ExtResource("1_cvnsp")
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
-position = Vector2(0, -16)
+position = Vector2(-1, -16)
 texture = ExtResource("2_cvnsp")
 hframes = 8
-vframes = 10
+vframes = 13
 frame = 1
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="CrouchCollision" type="CollisionShape2D" parent="."]
+position = Vector2(-1, -7)
+shape = SubResource("RectangleShape2D_vgqql")
+disabled = true
+debug_color = Color(0.83251077, 0.00061106804, 0.8445815, 0.41960785)
+
+[node name="StandCollision" type="CollisionShape2D" parent="."]
 position = Vector2(-1, -14.000001)
 scale = Vector2(0.9561023, -1.2148739)
 shape = SubResource("RectangleShape2D_cvnsp")

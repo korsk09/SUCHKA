@@ -3,10 +3,10 @@ extends CharacterBody2D
 var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
 
 @export var current_speed := 0
-@export var patrol_speed := 50
-@export var chase_speed := 70
-@export var max_hp := 5
-var current_hp := 5
+@export var patrol_speed := 35
+@export var chase_speed := 55
+@export var max_hp := 3
+var current_hp := 3
 @export var contact_damage := 1
 @export var knockback_force := 200.0
 @export var knockback_time := 0.2
@@ -19,7 +19,7 @@ var knockback_timer := 0.0
 @onready var right_point = $RightPoint.global_position.x
 @onready var player = $"../Player"
 
-enum State { PATROL, CHASE, HURT, DEAD, ATTACK }
+enum State { PATROL, CHASE, HURT, DEAD }
 var current_state: State = State.PATROL
 var previous_state: State = State.PATROL
 
@@ -73,13 +73,12 @@ func handle_state(delta: float) -> void:
             State.PATROL:
                 animation_player.play("Walk")
             State.CHASE:
-                animation_player.play("Run")
+                animation_player.play("Walk")
             State.HURT:
                 animation_player.play("Hurt")
             State.DEAD:
                 animation_player.play("Dead")
-            State.ATTACK:
-                animation_player.play("Attack")
+
 
     match current_state:
         State.PATROL:
@@ -93,8 +92,6 @@ func handle_state(delta: float) -> void:
                 velocity.x = 0
         State.DEAD:
             velocity = Vector2.ZERO
-        State.ATTACK:
-            velocity.x = 0
 
 
 # ПАТРУЛЬ
@@ -147,13 +144,11 @@ func take_damage(amount: int, dir: float):
         knockback_timer = knockback_time
     else:
         current_state = State.DEAD
-
+        
 func _on_contact_damage_body_entered(body: Node2D) -> void:
     if body.is_in_group("player"):
         var dir = sign(body.global_position.x - global_position.x)
         body.take_damage(contact_damage, dir)
-        print(body.name)
-        print(body.get_groups())
 
 func get_target_player() -> Node2D:
     var players = get_tree().get_nodes_in_group("player")
@@ -167,4 +162,3 @@ func get_target_player() -> Node2D:
             closest = p
 
     return closest
-    

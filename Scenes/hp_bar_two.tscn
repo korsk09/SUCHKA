@@ -1,6 +1,6 @@
 [gd_scene load_steps=3 format=3 uid="uid://n2m76dljmxup"]
 
-[ext_resource type="Script" uid="uid://c633g2haigeaf" path="res://hp_bar_two.gd" id="1_7lpvu"]
+[ext_resource type="Script" uid="uid://c633g2haigeaf" path="res://Scripts/hp_bar_two.gd" id="1_7lpvu"]
 [ext_resource type="PackedScene" uid="uid://qq7mxs5seqd0" path="res://Scenes/heart_two.tscn" id="2_7lpvu"]
 
 [node name="hpBarTwo" type="CanvasLayer"]

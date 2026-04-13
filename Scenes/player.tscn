@@ -1,4 +1,4 @@
-[gd_scene load_steps=20 format=3 uid="uid://de1u0etab0oir"]
+[gd_scene load_steps=21 format=3 uid="uid://de1u0etab0oir"]
 
 [ext_resource type="Script" uid="uid://cd7n765pvw3pd" path="res://Scripts/player.gd" id="1_cvnsp"]
 [ext_resource type="Texture2D" uid="uid://bac8c56nwapi" path="res://Assets/player.png" id="2_cvnsp"]
@@ -248,6 +248,9 @@ _data = {
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_6t5aa"]
 size = Vector2(12, 28)
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_fkybt"]
+size = Vector2(22, 27)
+
 [node name="Player" type="CharacterBody2D"]
 script = ExtResource("1_cvnsp")
 
@@ -290,5 +293,15 @@ wait_time = 0.2
 one_shot = true
 
 [node name="hpBar" parent="." instance=ExtResource("3_6t5aa")]
+
+[node name="CarryPoint" type="Marker2D" parent="."]
+position = Vector2(0, -42)
+
+[node name="PickupZone" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PickupZone"]
+position = Vector2(-1, -13.5)
+shape = SubResource("RectangleShape2D_fkybt")
+debug_color = Color(9.62615e-08, 0.8747649, 0.2199288, 0.41960785)
 
 [connection signal="timeout" from="hurtTimer" to="." method="_on_hurt_timer_timeout"]

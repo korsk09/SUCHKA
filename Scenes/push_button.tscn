@@ -1,0 +1,85 @@
+[gd_scene load_steps=8 format=3 uid="uid://dbhnxyh0721k3"]
+
+[ext_resource type="Script" uid="uid://cyem3gvxpdwns" path="res://Scripts/push_button.gd" id="1_8rqvt"]
+[ext_resource type="Texture2D" uid="uid://hgkdhsl7b6m1" path="res://Assets/props.png" id="2_8rqvt"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_uvxas"]
+size = Vector2(26, 4)
+
+[sub_resource type="Animation" id="Animation_fvx3s"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [56]
+}
+
+[sub_resource type="Animation" id="Animation_8rqvt"]
+resource_name = "push"
+length = 0.2
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.06666667, 0.13333334),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [56, 57, 58]
+}
+
+[sub_resource type="Animation" id="Animation_uvxas"]
+resource_name = "push_away"
+length = 0.2
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.06666668, 0.13333334),
+"transitions": PackedFloat32Array(1, 1, 1),
+"update": 1,
+"values": [58, 57, 56]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_uvxas"]
+_data = {
+&"RESET": SubResource("Animation_fvx3s"),
+&"push": SubResource("Animation_8rqvt"),
+&"push_away": SubResource("Animation_uvxas")
+}
+
+[node name="PushButton" type="Area2D"]
+script = ExtResource("1_8rqvt")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+z_index = -1
+position = Vector2(3, -8)
+texture = ExtResource("2_8rqvt")
+hframes = 8
+vframes = 8
+frame = 56
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(3, 6)
+shape = SubResource("RectangleShape2D_uvxas")
+debug_color = Color(0, 0.6443488, 0.28872547, 0.41960785)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimationLibrary_uvxas")
+}
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]
+[connection signal="body_exited" from="." to="." method="_on_body_exited"]

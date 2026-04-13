@@ -1,7 +1,7 @@
 extends CharacterBody2D
 
 @export var walk_speed := 200.0
-@export var run_speed := 450.0
+@export var run_speed := 350.0
 @export var acceleration := 1000.0
 
 @export var jump_velocity := -200.0
@@ -14,6 +14,8 @@ var jumps_left := jump_amount
 @export var wall_jump_vertical_force := -200.0
 @export var wall_slide_speed := 35.0
 
+@export var push_force := 100.0 # Сила, с которой мы толкаем камень
+
 var is_wall_sliding := false
 var wall_direction := 0
 
@@ -24,11 +26,16 @@ var is_crouching := false
 
 @export var damage := 1
 
+var carried_stone: RigidBody2D = null # Ссылка на поднятый камень
+var is_carrying: bool = false
+
 @onready var animation_player: AnimationPlayer = $AnimationPlayer
 @onready var sprite_2d: Sprite2D = $Sprite2D
 @onready var hurt_timer: Timer = $hurtTimer
 @onready var stand_collision: CollisionShape2D = $StandCollision
 @onready var crouch_collision: CollisionShape2D = $CrouchCollision
+@onready var carry_point = $CarryPoint
+@onready var pickup_zone = $PickupZone
 
 # Состояния 
 enum State { IDLE, WALK, RUN, JUMP, FALL, ATTACK, HURT, DEAD, WALL_SLIDE, CROUCH, CROUCH_WALK }
@@ -49,6 +56,7 @@ func _physics_process(delta: float) -> void:
   update_state()
   handle_state(delta)   
   move_and_slide()
+  handle_stone_push()
   handle_wall_slide()
 
 # сброс прыжков при касании пола
@@ -57,60 +65,68 @@ func _physics_process(delta: float) -> void:
 
 # Управление вводом 
 func handle_input(delta: float) -> void:
-  var direction := Input.get_axis("move_left", "move_right")
-  var target_speed := 0.0
+    var direction := Input.get_axis("move_left", "move_right")
+    var target_speed := 0.0
 
-  if is_crouching:
-    target_speed = walk_speed * 0.4
-  else:
-    if Input.is_action_pressed("move_run"):
-        target_speed = run_speed
+    # --- ИЗМЕНЕНИЕ СКОРОСТИ ---
+    if is_carrying:
+        target_speed = walk_speed * 0.5  # Если несем, скорость режется пополам
+    elif is_crouching:
+        target_speed = walk_speed * 0.4
     else:
-        target_speed = walk_speed
+        if Input.is_action_pressed("move_run"):
+            target_speed = run_speed
+        else:
+            target_speed = walk_speed
 
-  velocity.x = move_toward(
-    velocity.x,
-    direction * target_speed,
-    acceleration * delta
-  )
+    # Обычный расчет движения по X
+    velocity.x = move_toward(
+        velocity.x,
+        direction * target_speed,
+        acceleration * delta
+    )
 
-  # направление спрайта
-  if direction > 0:
-    sprite_2d.flip_h = false
-    $hitbox.scale.x = 1
-  elif direction < 0:
-    sprite_2d.flip_h = true
-    $hitbox.scale.x = -1.3
-    
-  # присед
-  if Input.is_action_pressed("crouch"):
-    is_crouching = true
-  else:
-    if can_stand():
-      is_crouching = false
+    # --- ПОВОРОТ СПРАЙТА И ТОЧКИ ПЕРЕНОСА ---
+    if direction > 0:
+        sprite_2d.flip_h = false
+        $hitbox.scale.x = 1
+        # Если точка переноса смещена, можно её тут тоже зеркалить
+    elif direction < 0:
+        sprite_2d.flip_h = true
+        $hitbox.scale.x = -1.3
 
-  stand_collision.disabled = is_crouching
-  crouch_collision.disabled = not is_crouching
-  # прыжок
-  if Input.is_action_just_pressed("jump") and not is_crouching:
+    # --- ЛОГИКА ПРИСЕДА (запрещаем, если несем камень) ---
+    if Input.is_action_pressed("crouch") and not is_carrying:
+        is_crouching = true
+    else:
+        if can_stand():
+            is_crouching = false
 
-    # Прыжок от стены
-    if is_wall_sliding:
-      velocity.x = wall_direction * wall_jump_force
-      velocity.y = wall_jump_vertical_force
-    
-      is_wall_sliding = false
-      return
+    stand_collision.disabled = is_crouching
+    crouch_collision.disabled = not is_crouching
 
-    # Обычный прыжок
-    if jumps_left > 0:
-        velocity.y = jump_velocity
-        current_state = State.JUMP
-        jumps_left -= 1
-    
-    
-  if Input.is_action_just_pressed("attack"):
-    current_state = State.ATTACK
+    # --- ПРЫЖОК (запрещаем, если несем камень) ---
+    if Input.is_action_just_pressed("jump") and not is_crouching and not is_carrying:
+        if is_wall_sliding:
+            velocity.x = wall_direction * wall_jump_force
+            velocity.y = wall_jump_vertical_force
+            is_wall_sliding = false
+            return
+
+        if jumps_left > 0:
+            velocity.y = jump_velocity
+            current_state = State.JUMP
+            jumps_left -= 1
+
+    # --- КНОПКА ПОДНЯТИЯ (наша новая логика) ---
+    if Input.is_action_just_pressed("interact"):
+        if is_carrying:
+            drop_stone()
+        else:
+            pick_up_stone()
+
+    if Input.is_action_just_pressed("attack"):
+        current_state = State.ATTACK
 
 # Гравитация 
 func apply_gravity(delta: float) -> void:
@@ -199,6 +215,12 @@ func _on_animation_finished(anim_name: String) -> void:
     if anim_name == "Dead":
         queue_free()
         
+func heal():
+    # Мы обращаемся к узлу hpBar и вызываем его метод heal()
+    # Убедись, что имя узла в дереве в точности совпадает с "hpBar"
+    if has_node("hpBar"):
+        $hpBar.heal()
+        
 func take_damage(amount: int, knockback_direction: float):
     if current_state == State.DEAD or is_invulnerable:
         return
@@ -252,3 +274,81 @@ func handle_wall_slide():
     else:
         is_wall_sliding = false
         wall_direction = 0
+        
+
+# Функция для толкания физических объектов
+func handle_stone_push() -> void:
+    # 1. Проверяем, зажата ли кнопка "push" (или "interact")
+    # Если кнопка НЕ нажата, мы просто выходим из функции и ничего не толкаем
+    if not Input.is_action_pressed("interact"):
+        return
+
+    # 2. Если кнопка нажата, проверяем столкновения
+    for i in get_slide_collision_count():
+        var collision = get_slide_collision(i)
+        var collider = collision.get_collider()
+
+        if collider is RigidBody2D:
+            # Вычисляем направление толчка
+            var push_direction = -collision.get_normal()
+            
+            # Толкаем только по горизонтали (X), используя силу push_force
+            collider.apply_central_impulse(Vector2(push_direction.x * push_force, 0))
+
+func pick_up_stone():
+    var bodies = $PickupZone.get_overlapping_bodies()
+    for body in bodies:
+        if body is RigidBody2D and body.is_in_group("stone"):
+            carried_stone = body
+            is_carrying = true
+            
+            # 1. Замораживаем физику
+            carried_stone.freeze = true 
+            
+            # 2. Отключаем коллизию, чтобы камень не толкал игрока изнутри
+            # Используем set_deferred, так как менять физику во время столкновения нельзя
+            carried_stone.get_node("CollisionShape2D").set_deferred("disabled", true)
+            
+            # 3. Привязываем к игроку. 
+            # Аргумент 'false' означает: "НЕ сохраняй старые координаты, 
+            # я сейчас сам их назначу".
+            carried_stone.reparent(self, false)
+            
+            # 4. Ставим ровно в точку CarryPoint
+            carried_stone.position = $CarryPoint.position
+            
+            # На всякий случай выводим в топ по слоям отрисовки
+            carried_stone.top_level = false # Убеждаемся, что он не живет своей жизнью
+            carried_stone.z_index = 10      # Рисуем поверх игрока
+            return
+
+func drop_stone():
+    if carried_stone:
+        # 1. Определяем направление (смотрим на flip_h)
+        # Если flip_h = true, значит смотрим ВЛЕВО (-1), иначе ВПРАВО (1)
+        var direction = -1 if sprite_2d.flip_h else 1
+        
+        # 2. Рассчитываем точку перед игроком (например, на 40 пикселей в сторону)
+        # Мы берем глобальную позицию игрока и смещаем её по X
+        var drop_offset = Vector2(direction * 40, -10) 
+        var spawn_pos = global_position + drop_offset
+
+        # 3. Возвращаем камень в корень уровня
+        carried_stone.reparent(get_parent())
+        
+        # 4. Устанавливаем камню новую позицию ПЕРЕД игроком
+        carried_stone.global_position = spawn_pos
+        
+        # 5. Включаем физику и коллизию обратно
+        carried_stone.freeze = false
+        carried_stone.get_node("CollisionShape2D").set_deferred("disabled", false)
+        
+        # 6. Даем небольшой импульс вперед и чуть-чуть вверх для красоты
+        # Обязательно через call_deferred или после маленькой паузы, 
+        # чтобы физика успела "проснуться"
+        await get_tree().physics_frame
+        carried_stone.apply_central_impulse(Vector2(direction * 120, -80))
+        
+        # Очищаем переменные
+        carried_stone = null
+        is_carrying = false

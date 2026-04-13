@@ -169,11 +169,17 @@ func _on_animation_finished(anim_name: String) -> void:
     if anim_name == "Dead":
         queue_free()
         
+func heal():
+    # Мы обращаемся к узлу hpBar и вызываем его метод heal()
+    # Убедись, что имя узла в дереве в точности совпадает с "hpBar"
+    if has_node("hpBarTwo"):
+        $hpBarTwo.heal()
+        
 func take_damage(amount: int, knockback_direction: float):
     if current_state == State.DEAD or is_invulnerable:
         return
         
-    $hpBar.hit()
+    $hpBarTwo.hit()
     can_control = false
     is_invulnerable = true
     
@@ -183,7 +189,7 @@ func take_damage(amount: int, knockback_direction: float):
     velocity.x = knockback_direction * 200
     velocity.y = -150
     
-    if $hpBar.current_hp <= 0:
+    if $hpBarTwo.current_hp <= 0:
         die()
         return
     

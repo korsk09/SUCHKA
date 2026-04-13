@@ -1,0 +1,24 @@
+[gd_scene load_steps=4 format=3 uid="uid://bsm2m5aqjxwt4"]
+
+[ext_resource type="Script" uid="uid://dvrbbgx3cjkqm" path="res://Scripts/health_poition.gd" id="1_6v5ro"]
+[ext_resource type="Texture2D" uid="uid://hgkdhsl7b6m1" path="res://Assets/props.png" id="2_270wg"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_2a71b"]
+size = Vector2(12, 14)
+
+[node name="HealthPoition" type="Area2D"]
+script = ExtResource("1_6v5ro")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(0, -7)
+texture = ExtResource("2_270wg")
+hframes = 8
+vframes = 8
+frame = 59
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, 1)
+shape = SubResource("RectangleShape2D_2a71b")
+debug_color = Color(0.956067, 0, 0.5424663, 0.41960785)
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]

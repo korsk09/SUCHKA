@@ -10,18 +10,12 @@ extends CharacterBody2D
 @export var jump_amount := 2
 var jumps_left := jump_amount
 
-@export var wall_jump_force := 250.0
-@export var wall_jump_vertical_force := -200.0
-@export var wall_slide_speed := 35.0
-
-@export var push_force := 100.0 # Сила, с которой мы толкаем камень
-
-var is_wall_sliding := false
-var wall_direction := 0
+@export var slide_speed := 450.0  # Скорость подката
+@export var slide_duration := 0.5 # Длительность подката в секундах
+var slide_timer := 0.0            # Текущее время подката
 
 var can_control := true
 var is_invulnerable := false
-
 var is_crouching := false
 
 @export var damage := 1
@@ -34,11 +28,9 @@ var is_carrying: bool = false
 @onready var hurt_timer: Timer = $hurtTimer
 @onready var stand_collision: CollisionShape2D = $StandCollision
 @onready var crouch_collision: CollisionShape2D = $CrouchCollision
-@onready var carry_point = $CarryPoint
-@onready var pickup_zone = $PickupZone
 
 # Состояния 
-enum State { IDLE, WALK, RUN, JUMP, FALL, ATTACK, HURT, DEAD, WALL_SLIDE, CROUCH, CROUCH_WALK }
+enum State { IDLE, WALK, RUN, JUMP, FALL, ATTACK, HURT, DEAD, SLIDE }
 var current_state: State = State.IDLE
 var previous_state: State = State.IDLE
 
@@ -50,14 +42,29 @@ func _physics_process(delta: float) -> void:
   if current_state == State.DEAD:
         return
         
+  if current_state == State.SLIDE:
+        slide_timer -= delta
+        
+        # Замедляем подкат, чтобы он не был бесконечным
+        velocity.x = move_toward(velocity.x, 0, acceleration * delta * 0.5)
+        
+        # Если время вышло ИЛИ мы почти остановились
+        if slide_timer <= 0 or abs(velocity.x) < 50:
+            if can_stand(): 
+                # ВОЗВРАЩАЕМСЯ В НОРМУ
+                current_state = State.IDLE
+                is_crouching = false
+                stand_collision.disabled = false # Включаем большую коллизию
+                crouch_collision.disabled = true # Выключаем маленькую
+            else:
+                slide_timer = 0.1 
+
   if can_control:
-    handle_input(delta)
+        handle_input(delta)
     
   update_state()
   handle_state(delta)   
   move_and_slide()
-  handle_stone_push()
-  handle_wall_slide()
 
 # сброс прыжков при касании пола
   if is_on_floor():
@@ -69,15 +76,10 @@ func handle_input(delta: float) -> void:
     var target_speed := 0.0
 
     # --- ИЗМЕНЕНИЕ СКОРОСТИ ---
-    if is_carrying:
-        target_speed = walk_speed * 0.5  # Если несем, скорость режется пополам
-    elif is_crouching:
-        target_speed = walk_speed * 0.4
+    if Input.is_action_pressed("move_run"):
+        target_speed = run_speed
     else:
-        if Input.is_action_pressed("move_run"):
-            target_speed = run_speed
-        else:
-            target_speed = walk_speed
+        target_speed = walk_speed
 
     # Обычный расчет движения по X
     velocity.x = move_toward(
@@ -95,38 +97,19 @@ func handle_input(delta: float) -> void:
         sprite_2d.flip_h = true
         $hitbox.scale.x = -1.3
 
-    # --- ЛОГИКА ПРИСЕДА (запрещаем, если несем камень) ---
-    if Input.is_action_pressed("crouch") and not is_carrying:
-        is_crouching = true
-    else:
-        if can_stand():
-            is_crouching = false
-
-    stand_collision.disabled = is_crouching
-    crouch_collision.disabled = not is_crouching
-
     # --- ПРЫЖОК (запрещаем, если несем камень) ---
-    if Input.is_action_just_pressed("jump") and not is_crouching and not is_carrying:
-        if is_wall_sliding:
-            velocity.x = wall_direction * wall_jump_force
-            velocity.y = wall_jump_vertical_force
-            is_wall_sliding = false
-            return
-
+    if Input.is_action_just_pressed("jump"):
         if jumps_left > 0:
             velocity.y = jump_velocity
             current_state = State.JUMP
             jumps_left -= 1
 
-    # --- КНОПКА ПОДНЯТИЯ (наша новая логика) ---
-    if Input.is_action_just_pressed("interact"):
-        if is_carrying:
-            drop_stone()
-        else:
-            pick_up_stone()
-
     if Input.is_action_just_pressed("attack"):
         current_state = State.ATTACK
+        
+    # Логика ПОДКАТА
+    if Input.is_action_just_pressed("crouch") and is_on_floor() and current_state != State.SLIDE:
+        start_slide()
 
 # Гравитация 
 func apply_gravity(delta: float) -> void:
@@ -142,36 +125,29 @@ func can_stand() -> bool:
     return not test_move(transform, Vector2(0, -10))
 
 # Определение состояния 
-func update_state() -> void:
-  if is_crouching and is_on_floor():
-    var direction := Input.get_axis("move_left", "move_right")
-    
-    if abs(direction) > 0.1:
-        current_state = State.CROUCH_WALK
-    else:
-        current_state = State.CROUCH
+func update_state() -> void: 
+  # 1. Самый высокий приоритет: Смерть и Урон
+  if current_state == State.DEAD or current_state == State.HURT:
     return
-  if current_state == State.ATTACK or current_state == State.HURT or current_state == State.DEAD:
-    return 
 
-  # приоритет стены
-  if is_wall_sliding:
-      current_state = State.WALL_SLIDE
-      return
+    # 2. Атака должна иметь приоритет над движением!
+    # Если мы уже атакуем, не прерываем анимацию.
+  if current_state == State.ATTACK:
+    return
+
+    # 3. Блокировка для подката
+  if current_state == State.SLIDE:
+    return
 
   if not is_on_floor():
-    if velocity.y < 0:
-      current_state = State.JUMP
-    else:
-      current_state = State.FALL
+        current_state = State.JUMP if velocity.y < 0 else State.FALL
   else:
-    if velocity.x == 0:
-      current_state = State.IDLE
-    else:
-      if abs(velocity.x) >= run_speed * 0.8:
-        current_state = State.RUN
-      else:
-        current_state = State.WALK
+        if abs(velocity.x) < 0.1:
+            current_state = State.IDLE
+        elif abs(velocity.x) >= run_speed * 0.8:
+            current_state = State.RUN
+        else:
+            current_state = State.WALK
         
 # Логика состояний 
 func handle_state(delta: float) -> void:
@@ -191,18 +167,14 @@ func handle_state(delta: float) -> void:
       animation_player.play("Jump")
     State.FALL:
       animation_player.play("Fall")
-    State.WALL_SLIDE:
-      animation_player.play("WallSlide")
     State.ATTACK:
       animation_player.play("Attack")
     State.HURT:
       animation_player.play("Hurt")
     State.DEAD:
       animation_player.play("Dead")
-    State.CROUCH:
-      animation_player.play("Crouch")
-    State.CROUCH_WALK:
-      animation_player.play("CrouchWalk")
+    State.SLIDE:
+        animation_player.play("Crouch")
     
 func _on_animation_finished(anim_name: String) -> void:
     if anim_name == "Hurt":
@@ -253,102 +225,15 @@ func die():
     velocity = Vector2.ZERO
     animation_player.play("Dead")
     
-func handle_wall_slide():
-    if is_on_wall() and not is_on_floor() and velocity.y > 0 and not is_crouching:
-        
-        var normal = get_wall_normal()
-        # normal.x = -1 если стена справа
-        # normal.x = 1 если стена слева
-        
-        # Проверяем нажата ли кнопка В СТОРОНУ СТЕНЫ
-        if (normal.x < 0 and Input.is_action_pressed("move_right")) \
-        or (normal.x > 0 and Input.is_action_pressed("move_left")):
-            if is_wall_sliding:
-                sprite_2d.flip_h = wall_direction < 0
-            is_wall_sliding = true
-            wall_direction = normal.x
-            velocity.y = min(velocity.y, wall_slide_speed)
-        else:
-            is_wall_sliding = false
-            wall_direction = 0
-    else:
-        is_wall_sliding = false
-        wall_direction = 0
-        
-
-# Функция для толкания физических объектов
-func handle_stone_push() -> void:
-    # 1. Проверяем, зажата ли кнопка "push" (или "interact")
-    # Если кнопка НЕ нажата, мы просто выходим из функции и ничего не толкаем
-    if not Input.is_action_pressed("interact"):
-        return
-
-    # 2. Если кнопка нажата, проверяем столкновения
-    for i in get_slide_collision_count():
-        var collision = get_slide_collision(i)
-        var collider = collision.get_collider()
-
-        if collider is RigidBody2D:
-            # Вычисляем направление толчка
-            var push_direction = -collision.get_normal()
-            
-            # Толкаем только по горизонтали (X), используя силу push_force
-            collider.apply_central_impulse(Vector2(push_direction.x * push_force, 0))
-
-func pick_up_stone():
-    var bodies = $PickupZone.get_overlapping_bodies()
-    for body in bodies:
-        if body is RigidBody2D and body.is_in_group("stone"):
-            carried_stone = body
-            is_carrying = true
-            
-            # 1. Замораживаем физику
-            carried_stone.freeze = true 
-            
-            # 2. Отключаем коллизию, чтобы камень не толкал игрока изнутри
-            # Используем set_deferred, так как менять физику во время столкновения нельзя
-            carried_stone.get_node("CollisionShape2D").set_deferred("disabled", true)
-            
-            # 3. Привязываем к игроку. 
-            # Аргумент 'false' означает: "НЕ сохраняй старые координаты, 
-            # я сейчас сам их назначу".
-            carried_stone.reparent(self, false)
-            
-            # 4. Ставим ровно в точку CarryPoint
-            carried_stone.position = $CarryPoint.position
-            
-            # На всякий случай выводим в топ по слоям отрисовки
-            carried_stone.top_level = false # Убеждаемся, что он не живет своей жизнью
-            carried_stone.z_index = 10      # Рисуем поверх игрока
-            return
-
-func drop_stone():
-    if carried_stone:
-        # 1. Определяем направление (смотрим на flip_h)
-        # Если flip_h = true, значит смотрим ВЛЕВО (-1), иначе ВПРАВО (1)
-        var direction = -1 if sprite_2d.flip_h else 1
-        
-        # 2. Рассчитываем точку перед игроком (например, на 40 пикселей в сторону)
-        # Мы берем глобальную позицию игрока и смещаем её по X
-        var drop_offset = Vector2(direction * 40, -10) 
-        var spawn_pos = global_position + drop_offset
-
-        # 3. Возвращаем камень в корень уровня
-        carried_stone.reparent(get_parent())
-        
-        # 4. Устанавливаем камню новую позицию ПЕРЕД игроком
-        carried_stone.global_position = spawn_pos
-        
-        # 5. Включаем физику и коллизию обратно
-        carried_stone.freeze = false
-        carried_stone.get_node("CollisionShape2D").set_deferred("disabled", false)
-        
-        # 6. Даем небольшой импульс вперед и чуть-чуть вверх для красоты
-        # Обязательно через call_deferred или после маленькой паузы, 
-        # чтобы физика успела "проснуться"
-        await get_tree().physics_frame
-        carried_stone.apply_central_impulse(Vector2(direction * 120, -80))
-        
-        # Очищаем переменные
-        carried_stone = null
-        is_carrying = false
+# Новая функция для начала подката
+func start_slide():
+    current_state = State.SLIDE
+    slide_timer = slide_duration
+    
+    # Направление подката зависит от того, куда смотрит спрайт
+    var direction = -1 if sprite_2d.flip_h else 1
+    velocity.x = direction * slide_speed
+    
+    # Переключаем коллизии (приседаем)
+    stand_collision.disabled = true
+    crouch_collision.disabled = false

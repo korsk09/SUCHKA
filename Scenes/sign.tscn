@@ -1,0 +1,84 @@
+[gd_scene load_steps=8 format=3 uid="uid://djoiy5fgwr1wm"]
+
+[ext_resource type="Script" uid="uid://bs28ccciak1hq" path="res://Scripts/sign.gd" id="1_m6mpx"]
+[ext_resource type="Texture2D" uid="uid://ckk7rkf1u5ipo" path="res://Assets/props2.png" id="2_m6mpx"]
+[ext_resource type="FontFile" uid="uid://dacsom855wdei" path="res://Assets/Font/Planes_ValMore.ttf" id="3_hqvqy"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_m6mpx"]
+size = Vector2(98, 29)
+
+[sub_resource type="Animation" id="Animation_hqvqy"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Label:visible_ratio")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [0.0]
+}
+
+[sub_resource type="Animation" id="Animation_m6mpx"]
+resource_name = "appear"
+length = 0.4
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Label:visible_ratio")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.36666667),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [0.0, 1.0]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_6c32n"]
+_data = {
+&"RESET": SubResource("Animation_hqvqy"),
+&"appear": SubResource("Animation_m6mpx")
+}
+
+[node name="sign" type="Area2D"]
+script = ExtResource("1_m6mpx")
+display_text = "Используйте кнопку \"Z\" для прыжка!"
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+z_index = -1
+position = Vector2(0, -16)
+texture = ExtResource("2_m6mpx")
+hframes = 6
+vframes = 5
+frame = 18
+
+[node name="Label" type="Label" parent="."]
+z_index = 1
+offset_left = -86.0
+offset_top = -89.0
+offset_right = 87.0
+offset_bottom = -20.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_fonts/font = ExtResource("3_hqvqy")
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 3
+visible_characters = 0
+visible_ratio = 0.0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(0, -14.5)
+shape = SubResource("RectangleShape2D_m6mpx")
+debug_color = Color(0, 0.64879495, 0.17915821, 0.41960785)
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimationLibrary_6c32n")
+}
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]
+[connection signal="body_exited" from="." to="." method="_on_body_exited"]

@@ -34,14 +34,17 @@ func _on_hurt_box_area_entered(area: Area2D) -> void:
 func take_damage():
     hp -= 1
     if hp == 2:
+        AudioController.play_box_hit()
         $AnimationPlayer.play("damage_1")
     elif hp == 1:
+        AudioController.play_box_hit()
         $AnimationPlayer.play("damage_2")
     elif hp <= 0:
         die() # Вынесли логику смерти в отдельную функцию
 
 func die():
     active = false # Чтобы нельзя было ударить в процессе анимации смерти
+    AudioController.play_box_broken()
     $AnimationPlayer.play("death")
     
     # Пытаемся выкинуть лут

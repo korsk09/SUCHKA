@@ -3,8 +3,8 @@ extends CharacterBody2D
 var gravity = ProjectSettings.get_setting("physics/2d/default_gravity")
 
 @export var current_speed := 0
-@export var patrol_speed := 35
-@export var chase_speed := 55
+@export var patrol_speed := 30
+@export var chase_speed := 60
 @export var max_hp := 3
 var current_hp := 3
 @export var contact_damage := 1
@@ -17,7 +17,7 @@ var knockback_timer := 0.0
 @onready var animation_player: AnimationPlayer = $AnimationPlayer
 @onready var left_point = $LeftPoint.global_position.x
 @onready var right_point = $RightPoint.global_position.x
-@onready var player = $"../Player"
+
 
 enum State { PATROL, CHASE, HURT, DEAD }
 var current_state: State = State.PATROL
@@ -73,10 +73,13 @@ func handle_state(delta: float) -> void:
             State.PATROL:
                 animation_player.play("Walk")
             State.CHASE:
+                AudioController.play_zombie_attack()
                 animation_player.play("Walk")
             State.HURT:
+                AudioController.play_zombie_hit()
                 animation_player.play("Hurt")
             State.DEAD:
+                AudioController.play_zombie_dead()
                 animation_player.play("Dead")
 
 

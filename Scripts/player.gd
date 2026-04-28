@@ -29,6 +29,13 @@ var is_carrying: bool = false
 @onready var stand_collision: CollisionShape2D = $StandCollision
 @onready var crouch_collision: CollisionShape2D = $CrouchCollision
 
+@onready var kick: AudioStreamPlayer = $SfxPlayer/Kick
+
+var keys = [] # Список ID имеющихся ключей
+
+# Сигнал для обновления интерфейса
+signal key_collected(texture)
+
 # Состояния 
 enum State { IDLE, WALK, RUN, JUMP, FALL, ATTACK, HURT, DEAD, SLIDE }
 var current_state: State = State.IDLE
@@ -164,17 +171,21 @@ func handle_state(delta: float) -> void:
     State.RUN:
       animation_player.play("Run")
     State.JUMP:
+      AudioController.play_jump()
       animation_player.play("Jump")
     State.FALL:
       animation_player.play("Fall")
     State.ATTACK:
       animation_player.play("Attack")
     State.HURT:
+      AudioController.play_kick()
       animation_player.play("Hurt")
     State.DEAD:
+      AudioController.play_dead()
       animation_player.play("Dead")
     State.SLIDE:
-        animation_player.play("Crouch")
+      AudioController.play_crouch()
+      animation_player.play("Crouch")
     
 func _on_animation_finished(anim_name: String) -> void:
     if anim_name == "Hurt":
@@ -237,3 +248,23 @@ func start_slide():
     # Переключаем коллизии (приседаем)
     stand_collision.disabled = true
     crouch_collision.disabled = false
+    
+func collect_key(id, texture):
+    keys.append(id)
+    # Вызываем функцию отрисовки ключа в UI
+    AudioController.play_keys()
+    if has_node("hpBar"):
+        $hpBar.add_key_to_gui(texture)
+
+func has_key(id) -> bool:
+    return id in keys
+
+func remove_key(id):
+    var index = keys.find(id) # Ищем, где в списке лежит этот ключ
+    if index != -1:
+        keys.remove_at(index) # Удаляем его из памяти
+        print("Ключ использован и удален: ", id)
+        
+        # Если хочешь, чтобы иконка тоже исчезла из UI:
+        if has_node("hpBar"):
+            $hpBar.remove_key_from_gui(index)

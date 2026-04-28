@@ -17,7 +17,6 @@ var knockback_timer := 0.0
 @onready var animation_player: AnimationPlayer = $AnimationPlayer
 @onready var left_point = $LeftPoint.global_position.x
 @onready var right_point = $RightPoint.global_position.x
-@onready var player = $"../Player"
 
 enum State { PATROL, CHASE, HURT, DEAD, ATTACK }
 var current_state: State = State.PATROL

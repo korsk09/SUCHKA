@@ -31,6 +31,11 @@ var is_carrying: bool = false
 @onready var carry_point = $CarryPoint
 @onready var pickup_zone = $PickupZone
 
+var keys = [] # Список ID имеющихся ключей
+
+# Сигнал для обновления интерфейса
+signal key_collected(texture)
+
 # Состояния 
 enum State { IDLE, WALK, RUN, JUMP, FALL, ATTACK, HURT, DEAD, WALL_SLIDE }
 var current_state: State = State.IDLE
@@ -163,6 +168,7 @@ func handle_state(delta: float) -> void:
     State.RUN:
       animation_player.play("Run")
     State.JUMP:
+      AudioController.play_jump()
       animation_player.play("Jump")
     State.FALL:
       animation_player.play("Fall")
@@ -171,8 +177,10 @@ func handle_state(delta: float) -> void:
     State.ATTACK:
       animation_player.play("Attack")
     State.HURT:
+      AudioController.play_kick()
       animation_player.play("Hurt")
     State.DEAD:
+      AudioController.play_dead()
       animation_player.play("Dead")
     
 func _on_animation_finished(anim_name: String) -> void:
@@ -271,6 +279,7 @@ func pick_up_stone():
             # На всякий случай выводим в топ по слоям отрисовки
             carried_stone.top_level = false # Убеждаемся, что он не живет своей жизнью
             carried_stone.z_index = 10      # Рисуем поверх игрока
+            AudioController.play_rock()
             return
 
 func drop_stone():
@@ -304,3 +313,22 @@ func drop_stone():
         carried_stone = null
         is_carrying = false
         
+func collect_key(id, texture):
+    keys.append(id)
+    AudioController.play_keys()
+    # Вызываем функцию отрисовки ключа в UI
+    if has_node("hpBarTwo"):
+        $hpBarTwo.add_key_to_gui(texture)
+
+func has_key(id) -> bool:
+    return id in keys
+        
+func remove_key(id):
+    var index = keys.find(id) # Ищем, где в списке лежит этот ключ
+    if index != -1:
+        keys.remove_at(index) # Удаляем его из памяти
+        print("Ключ использован и удален: ", id)
+        
+        # Если хочешь, чтобы иконка тоже исчезла из UI:
+        if has_node("hpBarTwo"):
+            $hpBarTwo.remove_key_from_gui(index)

@@ -1,0 +1,79 @@
+[gd_scene load_steps=18 format=3 uid="uid://by3i34gv8bk8g"]
+
+[ext_resource type="Script" uid="uid://cto1v8ituwn78" path="res://Scripts/audio_controller.gd" id="1_btkaq"]
+[ext_resource type="AudioStream" uid="uid://dooemhhegq656" path="res://Sounds/kick.wav" id="2_xxf2r"]
+[ext_resource type="AudioStream" uid="uid://d2uj7yl6wqy77" path="res://Sounds/chime.wav" id="3_t0xn5"]
+[ext_resource type="AudioStream" uid="uid://dc7pt2gwchih5" path="res://Sounds/tutorial.wav" id="4_xxf2r"]
+[ext_resource type="AudioStream" uid="uid://ko7m3l4a3eb8" path="res://Sounds/keys_jingling.wav" id="5_ual3u"]
+[ext_resource type="AudioStream" uid="uid://dr5fj6spna6al" path="res://Sounds/jump_2.wav" id="6_yyma2"]
+[ext_resource type="AudioStream" uid="uid://cebfypg6eiagq" path="res://Sounds/change_char.wav" id="7_y4nv4"]
+[ext_resource type="AudioStream" uid="uid://bwchxecbdfscw" path="res://Sounds/crouch.wav" id="8_ncnt2"]
+[ext_resource type="AudioStream" uid="uid://dcs41uyx3ciqr" path="res://Sounds/dead.wav" id="9_7md5g"]
+[ext_resource type="AudioStream" uid="uid://b3qrt64svo78g" path="res://Sounds/door_open.wav" id="10_xxf2r"]
+[ext_resource type="AudioStream" uid="uid://y1eu7gpvb4cw" path="res://Sounds/box_hit.wav" id="11_uc8ob"]
+[ext_resource type="AudioStream" uid="uid://ddekskgoajw2k" path="res://Sounds/box_broken.wav" id="12_t18y6"]
+[ext_resource type="AudioStream" uid="uid://ore0jta8qdwf" path="res://Sounds/zombie_attack.wav" id="13_r1wek"]
+[ext_resource type="AudioStream" uid="uid://dohfqqqh3dgtr" path="res://Sounds/rock.wav" id="14_mw20v"]
+[ext_resource type="AudioStream" uid="uid://b4k1s8rxekic8" path="res://Sounds/zombie_hit.wav" id="15_r1wek"]
+[ext_resource type="AudioStream" uid="uid://cieimh7pnfxef" path="res://Sounds/zombie_dead.wav" id="16_mw20v"]
+[ext_resource type="AudioStream" uid="uid://crjqe15g3fji2" path="res://Sounds/button.wav" id="17_mw20v"]
+
+[node name="AudioController" type="Node2D"]
+script = ExtResource("1_btkaq")
+
+[node name="Kick" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("2_xxf2r")
+
+[node name="Text" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("3_t0xn5")
+
+[node name="MusicTutorial" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("4_xxf2r")
+volume_db = -32.0
+
+[node name="Keys" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("5_ual3u")
+
+[node name="Jump" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("6_yyma2")
+
+[node name="ChangeChar" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("7_y4nv4")
+
+[node name="Crouch" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("8_ncnt2")
+
+[node name="Dead" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("9_7md5g")
+
+[node name="DoorOpen" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("10_xxf2r")
+
+[node name="BoxHit" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("11_uc8ob")
+
+[node name="BoxBroken" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("12_t18y6")
+
+[node name="HealthPoition" type="AudioStreamPlayer" parent="."]
+
+[node name="ZombieAttack" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("13_r1wek")
+
+[node name="Rock" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("14_mw20v")
+
+[node name="ZombieHit" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("15_r1wek")
+
+[node name="ZombieDead" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("16_mw20v")
+
+[node name="Button" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("17_mw20v")
+
+[node name="AudioStreamPlayer2D17" type="AudioStreamPlayer" parent="."]
+
+[node name="AudioStreamPlayer2D18" type="AudioStreamPlayer" parent="."]
+
+[node name="AudioStreamPlayer2D14" type="AudioStreamPlayer" parent="."]

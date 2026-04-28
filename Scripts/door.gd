@@ -1,13 +1,11 @@
 extends StaticBody2D
+@onready var animation_player: AnimationPlayer = $AnimationPlayer
+
 
 func open():
     # Отключаем коллизию, чтобы можно было пройти
-    $CollisionShape2D.set_deferred("disabled", true)
-    # Скрываем дверь (или запускаем анимацию открытия)
-    visible = false
+    animation_player.play("open")
 
 func close():
     # Включаем коллизию обратно
-    $CollisionShape2D.set_deferred("disabled", false)
-    # Показываем дверь
-    visible = true
+    animation_player.play("close")

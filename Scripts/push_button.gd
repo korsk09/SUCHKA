@@ -13,6 +13,7 @@ func _on_body_entered(body: Node2D) -> void:
     # Проверяем, игрок это или камень
     if body.is_in_group("player") or body.is_in_group("stone"):
         bodies_on_button += 1
+        AudioController.play_button()
         update_button_state()
 
 func _on_body_exited(body: Node2D) -> void:

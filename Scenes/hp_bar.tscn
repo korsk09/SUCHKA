@@ -10,3 +10,13 @@ heart_scene = ExtResource("2_jc3dn")
 [node name="HBoxContainer" type="HBoxContainer" parent="."]
 offset_right = 80.0
 offset_bottom = 80.0
+
+[node name="KeysContainer" type="HBoxContainer" parent="."]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -1919.0
+offset_top = 76.0
+offset_right = -1852.0
+offset_bottom = 143.0
+grow_horizontal = 0

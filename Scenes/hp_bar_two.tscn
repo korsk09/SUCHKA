@@ -10,3 +10,8 @@ heart_scene = ExtResource("2_7lpvu")
 [node name="HBoxContainer" type="HBoxContainer" parent="."]
 offset_right = 80.0
 offset_bottom = 80.0
+
+[node name="KeysContainer" type="HBoxContainer" parent="."]
+offset_top = 68.0
+offset_right = 76.0
+offset_bottom = 144.0

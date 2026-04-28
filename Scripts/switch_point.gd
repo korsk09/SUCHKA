@@ -5,8 +5,11 @@ var is_player_in_swap_zone = false
 
 @onready var player_a = $"../Player"
 @onready var player_b = $"../PlayerB"
+@onready var animation_player: AnimationPlayer = $AnimationPlayer
+
 
 func _ready():
+    animation_player.play("idle")
     activate_a()
 
 func _input(event):
@@ -17,6 +20,7 @@ func _input(event):
             activate_a()
 
 func activate_a():
+    AudioController.play_change()
     player_b.visible = false
     player_b.process_mode = Node.PROCESS_MODE_DISABLED
     player_b.get_node("hpBarTwo").visible = false
@@ -31,6 +35,7 @@ func activate_a():
     current = 1
 
 func activate_b():
+    AudioController.play_change()
     player_a.visible = false
     player_a.process_mode = Node.PROCESS_MODE_DISABLED
     player_a.get_node("hpBar").visible = false

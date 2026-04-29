@@ -1,4 +1,4 @@
-[gd_scene load_steps=28 format=4 uid="uid://c0qo1ln1sdbx1"]
+[gd_scene load_steps=29 format=4 uid="uid://c0qo1ln1sdbx1"]
 
 [ext_resource type="PackedScene" uid="uid://de1u0etab0oir" path="res://Scenes/player.tscn" id="1_ebmjs"]
 [ext_resource type="Script" uid="uid://dwrw4lygqp2c8" path="res://Scripts/game.gd" id="1_exi56"]
@@ -15,6 +15,7 @@
 [ext_resource type="PackedScene" uid="uid://dm40tqy02fl16" path="res://Scenes/murshroom.tscn" id="8_ewbju"]
 [ext_resource type="PackedScene" uid="uid://dbhnxyh0721k3" path="res://Scenes/push_button.tscn" id="12_rfjv2"]
 [ext_resource type="PackedScene" uid="uid://b530tvj8xq0er" path="res://Scenes/door.tscn" id="13_1phco"]
+[ext_resource type="PackedScene" uid="uid://b04lwld512dgl" path="res://Scenes/flying_demon.tscn" id="13_mg4q0"]
 [ext_resource type="PackedScene" uid="uid://bpugr85vdgwq2" path="res://Scenes/box_small.tscn" id="14_1phco"]
 [ext_resource type="PackedScene" uid="uid://cnk63shk5so0g" path="res://Scenes/stone.tscn" id="15_nb51f"]
 [ext_resource type="PackedScene" uid="uid://bsm2m5aqjxwt4" path="res://Scenes/health_poition.tscn" id="16_nnt18"]
@@ -6452,7 +6453,7 @@ tile_set = SubResource("TileSet_rfjv2")
 
 [node name="Player" parent="." groups=["player"] instance=ExtResource("1_ebmjs")]
 y_sort_enabled = true
-position = Vector2(-1814, -84)
+position = Vector2(1439, -818)
 
 [node name="Camera2D" type="Camera2D" parent="Player"]
 position = Vector2(0, -33)
@@ -6467,7 +6468,7 @@ editor_draw_limits = true
 [node name="PlayerB" parent="." groups=["player"] instance=ExtResource("4_i6g32")]
 z_index = 0
 y_sort_enabled = true
-position = Vector2(-1804, -84)
+position = Vector2(1413, -809)
 
 [node name="Camera2D" type="Camera2D" parent="PlayerB"]
 position = Vector2(0, -33)
@@ -6499,14 +6500,20 @@ position = Vector2(1077, 40)
 [node name="Box6" parent="Boxes" instance=ExtResource("7_1l0tm")]
 position = Vector2(147, -225)
 
+[node name="Box7" parent="Boxes" instance=ExtResource("7_1l0tm")]
+position = Vector2(2794, -156)
+
 [node name="Box8" parent="Boxes" instance=ExtResource("7_1l0tm")]
 position = Vector2(2702, -795)
+
+[node name="BoxSmall2" parent="Boxes" instance=ExtResource("14_1phco")]
+position = Vector2(2760, -163)
 
 [node name="BoxSmall" parent="Boxes" instance=ExtResource("14_1phco")]
 position = Vector2(1500, -81)
 
 [node name="BoxSmall3" parent="Boxes" instance=ExtResource("14_1phco")]
-position = Vector2(1631, -796)
+position = Vector2(1926, -655)
 
 [node name="BoxSmall4" parent="Boxes" instance=ExtResource("14_1phco")]
 position = Vector2(1528, -81)
@@ -6529,13 +6536,16 @@ position = Vector2(2336, -635)
 position = Vector2(2372, -896)
 
 [node name="murshroom" parent="Enemies" instance=ExtResource("8_ewbju")]
-position = Vector2(571, -135)
+position = Vector2(1420, -83)
 
 [node name="First_enemy3" parent="Enemies" instance=ExtResource("4_3dryh")]
 position = Vector2(586, 284)
 
 [node name="murshroom2" parent="Enemies" instance=ExtResource("8_ewbju")]
-position = Vector2(1504, -800)
+position = Vector2(1829, -624)
+
+[node name="First_enemy2" parent="Enemies" instance=ExtResource("4_3dryh")]
+position = Vector2(2654, -144)
 
 [node name="First_enemy" parent="Enemies" instance=ExtResource("4_3dryh")]
 position = Vector2(-329, 317)
@@ -6584,7 +6594,7 @@ display_text = "Вот и первый враг.
 Нажмите \"X\" для атаки!"
 
 [node name="sign4" parent="Signs" instance=ExtResource("20_7nbq1")]
-position = Vector2(-1787, 149)
+position = Vector2(-1815, 149)
 display_text = "Двигайтесь с помощью стрелочек!"
 
 [node name="sign5" parent="Signs" instance=ExtResource("20_7nbq1")]
@@ -6604,7 +6614,7 @@ position = Vector2(860, -411)
 display_text = "Для этого подойдите к алтарю и нажмите \"F\""
 
 [node name="sign9" parent="Signs" instance=ExtResource("20_7nbq1")]
-position = Vector2(1048, -474)
+position = Vector2(735, -507)
 display_text = "Теперь вы можете скользить и отпрыгивать от стен!"
 
 [node name="sign10" parent="Signs" instance=ExtResource("20_7nbq1")]
@@ -6616,4 +6626,16 @@ position = Vector2(2858, -345)
 display_text = "Кажется, здесь нужен ключ..."
 
 [node name="LevelExit" parent="." instance=ExtResource("22_7t8sx")]
-position = Vector2(2804, -167)
+position = Vector2(1165, -522)
+
+[node name="Flying_demon" parent="." instance=ExtResource("13_mg4q0")]
+position = Vector2(1616, -935)
+
+[node name="PointB" type="Marker2D" parent="."]
+position = Vector2(1369, -959)
+
+[node name="PointCenter" type="Marker2D" parent="."]
+position = Vector2(1526, -884)
+
+[node name="PointA" type="Marker2D" parent="."]
+position = Vector2(1685, -794)

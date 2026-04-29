@@ -29,8 +29,6 @@ var is_carrying: bool = false
 @onready var stand_collision: CollisionShape2D = $StandCollision
 @onready var crouch_collision: CollisionShape2D = $CrouchCollision
 
-@onready var kick: AudioStreamPlayer = $SfxPlayer/Kick
-
 var keys = [] # Список ID имеющихся ключей
 
 # Сигнал для обновления интерфейса

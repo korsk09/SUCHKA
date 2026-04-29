@@ -1,0 +1,180 @@
+[gd_scene load_steps=15 format=3 uid="uid://b04lwld512dgl"]
+
+[ext_resource type="Script" uid="uid://bqn2id5lxtfyy" path="res://Scripts/flying_demon.gd" id="1_ku11i"]
+[ext_resource type="Texture2D" uid="uid://00b6xxytnbuh" path="res://Assets/flying_demon.png" id="1_r6hyp"]
+[ext_resource type="PackedScene" uid="uid://dxjdk4r6errm5" path="res://Scenes/fireball.tscn" id="2_yb7tg"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_ku11i"]
+size = Vector2(63, 65)
+
+[sub_resource type="Animation" id="Animation_yb7tg"]
+resource_name = "Idle"
+length = 0.65
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.16666667, 0.33333334, 0.5),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [32, 33, 34, 35]
+}
+
+[sub_resource type="Animation" id="Animation_k5kp1"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [32]
+}
+
+[sub_resource type="Animation" id="Animation_vahcn"]
+resource_name = "Hurt"
+length = 0.4
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.099999994, 0.19999999, 0.3),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [24, 25, 26, 27]
+}
+
+[sub_resource type="Animation" id="Animation_dvxml"]
+resource_name = "Dead"
+length = 0.6
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.1, 0.2, 0.3, 0.4, 0.5),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [8, 9, 10, 11, 12, 13]
+}
+
+[sub_resource type="Animation" id="Animation_wlqfw"]
+resource_name = "Attack"
+length = 0.55
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.06666667, 0.13333334, 0.2, 0.26666668, 0.33333334, 0.4, 0.46666667),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [0, 1, 2, 3, 4, 5, 6, 7]
+}
+
+[sub_resource type="Animation" id="Animation_brofk"]
+resource_name = "Fly"
+length = 0.8
+loop_mode = 1
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.2, 0.4, 0.6),
+"transitions": PackedFloat32Array(1, 1, 1, 1),
+"update": 1,
+"values": [16, 17, 18, 19]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_h2qlv"]
+_data = {
+&"Attack": SubResource("Animation_wlqfw"),
+&"Dead": SubResource("Animation_dvxml"),
+&"Fly": SubResource("Animation_brofk"),
+&"Hurt": SubResource("Animation_vahcn"),
+&"Idle": SubResource("Animation_yb7tg"),
+&"RESET": SubResource("Animation_k5kp1")
+}
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_fermm"]
+size = Vector2(63, 65)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_taswu"]
+size = Vector2(278, 48)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_dyoog"]
+size = Vector2(65, 67)
+
+[node name="Flying_demon" type="CharacterBody2D"]
+script = ExtResource("1_ku11i")
+fireball_scene = ExtResource("2_yb7tg")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(0, -36)
+texture = ExtResource("1_r6hyp")
+hframes = 8
+vframes = 5
+frame = 32
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(-0.5, -35.5)
+shape = SubResource("RectangleShape2D_ku11i")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimationLibrary_h2qlv")
+}
+autoplay = "Fly"
+
+[node name="HurtBox" type="Area2D" parent="."]
+collision_layer = 2
+collision_mask = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HurtBox"]
+position = Vector2(-0.5, -35.5)
+shape = SubResource("RectangleShape2D_fermm")
+debug_color = Color(0.9589949, 2.9841065e-06, 0.5267433, 0.41960785)
+
+[node name="Detector" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Detector"]
+position = Vector2(0, -27)
+shape = SubResource("RectangleShape2D_taswu")
+debug_color = Color(0.6517136, 0.519387, 0, 0.41960785)
+
+[node name="ContactDamage" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ContactDamage"]
+position = Vector2(-0.5, -35.5)
+shape = SubResource("RectangleShape2D_dyoog")
+debug_color = Color(0, 0.8209203, 0.50051194, 0.41960785)
+
+[node name="LeftPoint" type="Node2D" parent="."]
+position = Vector2(-166, -27)
+
+[node name="RightPoint" type="Node2D" parent="."]
+position = Vector2(170, -28)
+
+[node name="StateTimer" type="Timer" parent="."]
+
+[connection signal="area_entered" from="HurtBox" to="." method="_on_hurt_box_area_entered"]
+[connection signal="body_entered" from="ContactDamage" to="." method="_on_contact_damage_body_entered"]
+[connection signal="timeout" from="StateTimer" to="." method="_on_state_timer_timeout"]

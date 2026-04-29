@@ -1,0 +1,28 @@
+[gd_scene load_steps=4 format=3 uid="uid://dxjdk4r6errm5"]
+
+[ext_resource type="Script" uid="uid://cx4md647bveb2" path="res://Scripts/fireball.gd" id="1_0mxqg"]
+[ext_resource type="Texture2D" uid="uid://colgai58ig3t6" path="res://Assets/fireball.png" id="2_ne4qj"]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_hcgvv"]
+radius = 9.0
+height = 34.0
+
+[node name="Fireball" type="Area2D"]
+script = ExtResource("1_0mxqg")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(0, -16)
+texture = ExtResource("2_ne4qj")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+position = Vector2(-1, -14)
+rotation = -1.5707964
+shape = SubResource("CapsuleShape2D_hcgvv")
+debug_color = Color(0, 0.5982518, 0.71188265, 0.41960785)
+
+[node name="VisibleOnScreenNotifier2D" type="VisibleOnScreenNotifier2D" parent="."]
+position = Vector2(-8, -14)
+rect = Rect2(-10, -10, 37, 20)
+
+[connection signal="body_entered" from="." to="." method="_on_body_entered"]
+[connection signal="screen_exited" from="VisibleOnScreenNotifier2D" to="." method="_on_visible_on_screen_notifier_2d_screen_exited"]

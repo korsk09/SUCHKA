@@ -6452,7 +6452,7 @@ tile_set = SubResource("TileSet_rfjv2")
 
 [node name="Player" parent="." groups=["player"] instance=ExtResource("1_ebmjs")]
 y_sort_enabled = true
-position = Vector2(-1814, -84)
+position = Vector2(951, -551)
 
 [node name="Camera2D" type="Camera2D" parent="Player"]
 position = Vector2(0, -33)
@@ -6467,7 +6467,7 @@ editor_draw_limits = true
 [node name="PlayerB" parent="." groups=["player"] instance=ExtResource("4_i6g32")]
 z_index = 0
 y_sort_enabled = true
-position = Vector2(-1804, -84)
+position = Vector2(999, -565)
 
 [node name="Camera2D" type="Camera2D" parent="PlayerB"]
 position = Vector2(0, -33)
@@ -6480,7 +6480,7 @@ position_smoothing_speed = 9.0
 editor_draw_limits = true
 
 [node name="SwitchPoint" parent="." instance=ExtResource("5_wowpa")]
-position = Vector2(944, -458)
+position = Vector2(954, -458)
 
 [node name="Boxes" type="Node2D" parent="."]
 
@@ -6541,7 +6541,7 @@ position = Vector2(1504, -800)
 position = Vector2(-329, 317)
 
 [node name="Stone" parent="." instance=ExtResource("15_nb51f")]
-position = Vector2(2000, -647)
+position = Vector2(2004, -661)
 mass = 10.0
 physics_material_override = SubResource("PhysicsMaterial_nb51f")
 
@@ -6600,12 +6600,12 @@ position = Vector2(967, 293)
 display_text = "Если вы поранились, выпейте зелье."
 
 [node name="sign8" parent="Signs" instance=ExtResource("20_7nbq1")]
-position = Vector2(860, -411)
+position = Vector2(850, -411)
 display_text = "Для этого подойдите к алтарю и нажмите \"F\""
 
 [node name="sign9" parent="Signs" instance=ExtResource("20_7nbq1")]
 position = Vector2(1048, -474)
-display_text = "Теперь вы можете скользить и отпрыгивать от стен!"
+display_text = "Удерживайте стрелочки и нажимайте на \"Z\", чтобы отскакивать от стен."
 
 [node name="sign10" parent="Signs" instance=ExtResource("20_7nbq1")]
 position = Vector2(2182, -619)

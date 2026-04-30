@@ -1,4 +1,4 @@
-[gd_scene load_steps=18 format=3 uid="uid://b4wrjgaumu285"]
+[gd_scene load_steps=19 format=3 uid="uid://b4wrjgaumu285"]
 
 [ext_resource type="Script" uid="uid://cp7mwy8km450m" path="res://Scripts/player_b.gd" id="1_p4nym"]
 [ext_resource type="Texture2D" uid="uid://d2cknpy82vbt4" path="res://Assets/playerTwo.png" id="2_bqay6"]
@@ -213,6 +213,8 @@ size = Vector2(12, 28)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_bqay6"]
 size = Vector2(24, 28)
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_tk4rc"]
+
 [node name="PlayerB" type="CharacterBody2D"]
 z_index = 1
 script = ExtResource("1_p4nym")
@@ -258,5 +260,10 @@ position = Vector2(0, -43)
 position = Vector2(-1, -14)
 shape = SubResource("RectangleShape2D_bqay6")
 debug_color = Color(0.16771147, 0.64425987, 0, 0.41960785)
+
+[node name="ShapeCast2D" type="ShapeCast2D" parent="."]
+position = Vector2(-3, -14)
+shape = SubResource("RectangleShape2D_tk4rc")
+target_position = Vector2(40, 0)
 
 [connection signal="timeout" from="hurtTimer" to="." method="_on_hurt_timer_timeout"]

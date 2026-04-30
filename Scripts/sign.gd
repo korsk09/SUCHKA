@@ -5,10 +5,12 @@ extends Area2D
 
 @onready var label = $Label # Путь к твоему тексту
 @onready var anim_player = $AnimationPlayer
+var start_pos_y: float
 
 func _ready():
     label.text = display_text
-    label.modulate.a = 0 # Скрываем текст при старте
+    label.modulate.a = 0
+    start_pos_y = label.position.y
 
 func _on_body_entered(body: Node2D) -> void:
     if body.is_in_group("player"):
@@ -22,11 +24,12 @@ func show_text():
     var tween = create_tween()
     anim_player.play("appear")
     AudioController.play_text()
-    # Плавное появление и небольшое всплытие вверх
+
     tween.parallel().tween_property(label, "modulate:a", 1.0, 0.3)
-    tween.parallel().tween_property(label, "position:y", label.position.y - 20, 0.3).set_trans(Tween.TRANS_BACK)
+    tween.parallel().tween_property(label, "position:y", start_pos_y - 20, 0.3).set_trans(Tween.TRANS_BACK)
 
 func hide_text():
     var tween = create_tween()
+
     tween.parallel().tween_property(label, "modulate:a", 0.0, 0.2)
-    tween.parallel().tween_property(label, "position:y", label.position.y + 20, 0.2)
+    tween.parallel().tween_property(label, "position:y", start_pos_y, 0.2)

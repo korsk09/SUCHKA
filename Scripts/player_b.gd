@@ -111,7 +111,7 @@ func handle_input(delta: float) -> void:
         else:
             pick_up_stone()
 
-    if Input.is_action_just_pressed("attack"):
+    if Input.is_action_just_pressed("attack") and current_state != State.ATTACK:
         current_state = State.ATTACK
 
 # Гравитация 
@@ -157,6 +157,10 @@ func update_state() -> void:
 func handle_state(delta: float) -> void:
   if current_state == previous_state:
     return
+    
+  # ЕСЛИ МЫ УХОДИМ ИЗ АТАКИ В ЛЮБОЕ ДРУГОЕ СОСТОЯНИЕ
+  if previous_state == State.ATTACK:
+    $hitbox/CollisionShape2D.disabled = true
 
   previous_state = current_state
 
@@ -203,6 +207,9 @@ func heal():
 func take_damage(amount: int, knockback_direction: float):
     if current_state == State.DEAD or is_invulnerable:
         return
+        
+    # ПРИНУДИТЕЛЬНО ВЫКЛЮЧАЕМ ХИТБОКС ПРИ ПОЛУЧЕНИИ УРОНА
+    $hitbox/CollisionShape2D.set_deferred("disabled", true)
         
     $hpBarTwo.hit()
     can_control = false
@@ -283,35 +290,48 @@ func pick_up_stone():
             return
 
 func drop_stone():
-    if carried_stone:
-        # 1. Определяем направление (смотрим на flip_h)
-        # Если flip_h = true, значит смотрим ВЛЕВО (-1), иначе ВПРАВО (1)
-        var direction = -1 if sprite_2d.flip_h else 1
-        
-        # 2. Рассчитываем точку перед игроком (например, на 40 пикселей в сторону)
-        # Мы берем глобальную позицию игрока и смещаем её по X
-        var drop_offset = Vector2(direction * 40, -10) 
-        var spawn_pos = global_position + drop_offset
+    if not carried_stone: return
 
-        # 3. Возвращаем камень в корень уровня
-        carried_stone.reparent(get_parent())
+    var direction = -1 if sprite_2d.flip_h else 1
+    
+    # 1. Сначала считаем смещение (куда хотим положить)
+    var drop_offset = Vector2(direction * 40, -10) 
+    
+    # 2. Считаем итоговую глобальную позицию
+    # Именно этой переменной не хватало в твоём коде
+    var spawn_pos = global_position + drop_offset
+
+    var shapecast = $ShapeCast2D
+    shapecast.clear_exceptions()
+    shapecast.add_exception(self)
+    shapecast.add_exception(carried_stone)
+    
+    # Настраиваем проверку
+    shapecast.target_position = drop_offset
+    shapecast.force_shapecast_update()
+
+    # 3. Если путь прегражден стеной или дверью — выходим
+    if shapecast.is_colliding():
+        print("Не могу поставить: мешает ", shapecast.get_collider(0).name)
+        return
+
+    # 4. Если чисто — переносим камень из "рук" на уровень
+    carried_stone.reparent(get_parent())
+    carried_stone.global_position = spawn_pos
         
-        # 4. Устанавливаем камню новую позицию ПЕРЕД игроком
-        carried_stone.global_position = spawn_pos
+    # 5. Включаем физику
+    carried_stone.freeze = false
+    carried_stone.get_node("CollisionShape2D").set_deferred("disabled", false)
         
-        # 5. Включаем физику и коллизию обратяно
-        carried_stone.freeze = false
-        carried_stone.get_node("CollisionShape2D").set_deferred("disabled", false)
-        
-        # 6. Даем небольшой импульс вперед и чуть-чуть вверх для красоты
-        # Обязательно через call_deferred или после маленькой паузы, 
-        # чтобы физика успела "проснуться"
-        await get_tree().physics_frame
+    # 6. Импульс
+    await get_tree().physics_frame
+    if carried_stone: # Проверка на случай, если камень удалили за этот кадр
         carried_stone.apply_central_impulse(Vector2(direction * 120, -80))
         
-        # Очищаем переменные
-        carried_stone = null
-        is_carrying = false
+    # Очищаем переменные
+    carried_stone = null
+    is_carrying = false
+        
         
 func collect_key(id, texture):
     keys.append(id)

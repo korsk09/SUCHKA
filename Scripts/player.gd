@@ -109,7 +109,7 @@ func handle_input(delta: float) -> void:
             current_state = State.JUMP
             jumps_left -= 1
 
-    if Input.is_action_just_pressed("attack"):
+    if Input.is_action_just_pressed("attack") and current_state != State.ATTACK:
         current_state = State.ATTACK
         
     # Логика ПОДКАТА
@@ -158,6 +158,10 @@ func update_state() -> void:
 func handle_state(delta: float) -> void:
   if current_state == previous_state:
     return
+    
+  # ЕСЛИ МЫ УХОДИМ ИЗ АТАКИ В ЛЮБОЕ ДРУГОЕ СОСТОЯНИЕ
+  if previous_state == State.ATTACK:
+    $hitbox/CollisionShape2D.disabled = true # Или как там у тебя путь до коллизии
 
   previous_state = current_state
 
@@ -205,6 +209,8 @@ func heal():
 func take_damage(amount: int, knockback_direction: float):
     if current_state == State.DEAD or is_invulnerable:
         return
+        
+    $hitbox/CollisionShape2D.set_deferred("disabled", true)
         
     $hpBar.hit()
     can_control = false

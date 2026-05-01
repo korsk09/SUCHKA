@@ -29,7 +29,12 @@ func apply_gravity(delta: float) -> void:
 func _on_hurt_box_area_entered(area: Area2D) -> void:
     if not active: return
     if area.name == "hitbox":
+        var player = area.get_parent()
+        var dir = sign(global_position.x - player.global_position.x)
         take_damage()
+        
+        if player.current_state == player.State.DOWN_ATTACK:
+            player.bounce_up()
         
 func take_damage():
     hp -= 1

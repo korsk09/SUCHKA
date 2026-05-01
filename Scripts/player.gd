@@ -17,6 +17,7 @@ var slide_timer := 0.0            # Текущее время подката
 var can_control := true
 var is_invulnerable := false
 var is_crouching := false
+var is_down_attacking := false
 
 @export var damage := 1
 
@@ -35,7 +36,7 @@ var keys = [] # Список ID имеющихся ключей
 signal key_collected(texture)
 
 # Состояния 
-enum State { IDLE, WALK, RUN, JUMP, FALL, ATTACK, HURT, DEAD, SLIDE }
+enum State { IDLE, WALK, RUN, JUMP, FALL, ATTACK, HURT, DEAD, SLIDE, DOWN_ATTACK }
 var current_state: State = State.IDLE
 var previous_state: State = State.IDLE
 
@@ -100,7 +101,7 @@ func handle_input(delta: float) -> void:
         # Если точка переноса смещена, можно её тут тоже зеркалить
     elif direction < 0:
         sprite_2d.flip_h = true
-        $hitbox.scale.x = -1.3
+        $hitbox.scale.x = -1
 
     # --- ПРЫЖОК (запрещаем, если несем камень) ---
     if Input.is_action_just_pressed("jump"):
@@ -110,7 +111,15 @@ func handle_input(delta: float) -> void:
             jumps_left -= 1
 
     if Input.is_action_just_pressed("attack") and current_state != State.ATTACK:
-        current_state = State.ATTACK
+        # Атака вниз: в воздухе + зажат "вниз"
+        if not is_on_floor() and Input.is_action_pressed("move_down"):
+            current_state = State.DOWN_ATTACK
+            is_down_attacking = true
+            var dir = -1 if sprite_2d.flip_h else 1
+            velocity.y = 600.0
+            velocity.x = dir * 450.0  # наискосок при атаке
+        else:
+            current_state = State.ATTACK
         
     # Логика ПОДКАТА
     if Input.is_action_just_pressed("crouch") and is_on_floor() and current_state != State.SLIDE:
@@ -118,6 +127,10 @@ func handle_input(delta: float) -> void:
 
 # Гравитация 
 func apply_gravity(delta: float) -> void:
+  if current_state == State.DOWN_ATTACK:
+    # Своя фиксированная скорость падения уже задана, гравитация не нужна
+    return
+    
   if velocity.y < 0:
     if Input.is_action_pressed("jump"):
       velocity.y += jump_hold_gravity * delta
@@ -143,6 +156,9 @@ func update_state() -> void:
     # 3. Блокировка для подката
   if current_state == State.SLIDE:
     return
+    
+  if current_state == State.DOWN_ATTACK:
+    return
 
   if not is_on_floor():
         current_state = State.JUMP if velocity.y < 0 else State.FALL
@@ -162,6 +178,10 @@ func handle_state(delta: float) -> void:
   # ЕСЛИ МЫ УХОДИМ ИЗ АТАКИ В ЛЮБОЕ ДРУГОЕ СОСТОЯНИЕ
   if previous_state == State.ATTACK:
     $hitbox/CollisionShape2D.disabled = true # Или как там у тебя путь до коллизии
+    
+  # ЕСЛИ МЫ УХОДИМ ИЗ АТАКИ В ЛЮБОЕ ДРУГОЕ СОСТОЯНИЕ
+  if previous_state == State.DOWN_ATTACK:
+    $hitbox/CollisionShape2D2.disabled = true # Или как там у тебя путь до коллизии
 
   previous_state = current_state
 
@@ -188,6 +208,8 @@ func handle_state(delta: float) -> void:
     State.SLIDE:
       AudioController.play_crouch()
       animation_player.play("Crouch")
+    State.DOWN_ATTACK:
+      animation_player.play("DownAttack") 
     
 func _on_animation_finished(anim_name: String) -> void:
     if anim_name == "Hurt":
@@ -200,6 +222,10 @@ func _on_animation_finished(anim_name: String) -> void:
     if anim_name == "Dead":
         queue_free()
         
+    if anim_name == "DownAttack":
+        is_down_attacking = false
+        current_state = State.FALL
+        
 func heal():
     # Мы обращаемся к узлу hpBar и вызываем его метод heal()
     # Убедись, что имя узла в дереве в точности совпадает с "hpBar"
@@ -211,6 +237,7 @@ func take_damage(amount: int, knockback_direction: float):
         return
         
     $hitbox/CollisionShape2D.set_deferred("disabled", true)
+    $hitbox/CollisionShape2D2.set_deferred("disabled", true)
         
     $hpBar.hit()
     can_control = false
@@ -272,3 +299,12 @@ func remove_key(id):
         # Если хочешь, чтобы иконка тоже исчезла из UI:
         if has_node("hpBar"):
             $hpBar.remove_key_from_gui(index)
+            
+func bounce_up():
+    var dir = 1 if sprite_2d.flip_h else -1
+    velocity.y = jump_velocity * 1.5
+    velocity.x = dir * 350.0  # горизонтальная сила отскока, подбери под себя
+    is_down_attacking = false
+    is_invulnerable = true  # включаем неуязвимость
+    hurt_timer.start()      # hurt_timer уже выключает её по таймауту
+    current_state = State.JUMP

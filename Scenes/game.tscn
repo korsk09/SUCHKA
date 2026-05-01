@@ -6417,7 +6417,7 @@ texture = ExtResource("2_o5yvi")
 motion_scale = Vector2(0.45, 1)
 
 [node name="Background3" type="Sprite2D" parent="ParallaxBackground/ParallaxLayer3"]
-position = Vector2(660.00006, -41.00003)
+position = Vector2(665.00006, -48)
 scale = Vector2(5.381125, 5.381125)
 texture = ExtResource("3_rku1e")
 
@@ -6467,7 +6467,7 @@ editor_draw_limits = true
 [node name="PlayerB" parent="." groups=["player"] instance=ExtResource("4_i6g32")]
 z_index = 0
 y_sort_enabled = true
-position = Vector2(999, -565)
+position = Vector2(1002, -585)
 
 [node name="Camera2D" type="Camera2D" parent="PlayerB"]
 position = Vector2(0, -33)

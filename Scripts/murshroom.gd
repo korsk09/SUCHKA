@@ -81,6 +81,7 @@ func handle_state(delta: float) -> void:
             State.HURT:
                 animation_player.play("hurt")
             State.DEAD:
+                $ContactDamage/CollisionShape2D.set_deferred("disabled", true)
                 animation_player.play("dead")
             State.ATTACK:
                 animation_player.play("attack")
@@ -174,8 +175,13 @@ func _on_hurt_box_area_entered(area: Area2D) -> void:
         
     if area.name == "hitbox":
         var player = area.get_parent()
+        if not player.is_in_group("player"):  # защита на всякий случай
+            return
         var dir = sign(global_position.x - player.global_position.x)
         take_damage(player.damage, dir)
+        print(player.name)
+        if player.current_state == player.State.DOWN_ATTACK:
+            player.bounce_up()
 
 func attack_jump(dir_x: float):
     can_attack = false

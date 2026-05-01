@@ -11,6 +11,7 @@ var current_hp := 3
 @export var knockback_force := 200.0
 @export var knockback_time := 0.2
 
+
 var knockback_timer := 0.0
 
 @onready var sprite_2d: Sprite2D = $Sprite2D
@@ -80,6 +81,7 @@ func handle_state(delta: float) -> void:
                 animation_player.play("Hurt")
             State.DEAD:
                 AudioController.play_zombie_dead()
+                $ContactDamage/CollisionShape2D.set_deferred("disabled", true)
                 animation_player.play("Dead")
 
 
@@ -136,7 +138,10 @@ func _on_hurt_box_area_entered(area: Area2D) -> void:
         var player = area.get_parent()
         var dir = sign(global_position.x - player.global_position.x)
         take_damage(player.damage, dir)
-            
+        
+        if player.current_state == player.State.DOWN_ATTACK:
+            player.bounce_up()
+    
 func take_damage(amount: int, dir: float):
     current_hp -= amount
     

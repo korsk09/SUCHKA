@@ -1,4 +1,4 @@
-[gd_scene load_steps=21 format=3 uid="uid://de1u0etab0oir"]
+[gd_scene load_steps=23 format=3 uid="uid://de1u0etab0oir"]
 
 [ext_resource type="Script" uid="uid://cd7n765pvw3pd" path="res://Scripts/player.gd" id="1_cvnsp"]
 [ext_resource type="Texture2D" uid="uid://bac8c56nwapi" path="res://Assets/player.png" id="2_cvnsp"]
@@ -32,7 +32,7 @@ tracks/1/path = NodePath("hitbox/CollisionShape2D:disabled")
 tracks/1/interp = 1
 tracks/1/loop_wrap = true
 tracks/1/keys = {
-"times": PackedFloat32Array(0, 0.1, 0.2),
+"times": PackedFloat32Array(0, 0.06666667, 0.23333333),
 "transitions": PackedFloat32Array(1, 1, 1),
 "update": 1,
 "values": [true, false, true]
@@ -85,6 +85,34 @@ tracks/0/keys = {
 "transitions": PackedFloat32Array(1, 1, 1, 1),
 "update": 1,
 "values": [73, 49, 50, 51]
+}
+
+[sub_resource type="Animation" id="Animation_7dp3o"]
+resource_name = "Down_Attack"
+length = 0.2
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite2D:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 0.033333335, 0.06666668, 0.099999994, 0.13333336, 0.16666669),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1),
+"update": 1,
+"values": [65, 66, 67, 68, 69, 70]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("hitbox/CollisionShape2D2:disabled")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 0.2),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [false, true]
 }
 
 [sub_resource type="Animation" id="Animation_x3wgy"]
@@ -178,6 +206,18 @@ tracks/1/keys = {
 "update": 1,
 "values": [true]
 }
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("hitbox/CollisionShape2D2:disabled")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
 
 [sub_resource type="Animation" id="Animation_vgqql"]
 resource_name = "Run"
@@ -235,6 +275,7 @@ _data = {
 &"Crouch": SubResource("Animation_pu2lt"),
 &"CrouchWalk": SubResource("Animation_ukyrk"),
 &"Dead": SubResource("Animation_tx1dd"),
+&"DownAttack": SubResource("Animation_7dp3o"),
 &"Fall": SubResource("Animation_x3wgy"),
 &"Hurt": SubResource("Animation_f1ek2"),
 &"Idle": SubResource("Animation_cvnsp"),
@@ -244,6 +285,8 @@ _data = {
 &"Walk": SubResource("Animation_6t5aa"),
 &"WallSlide": SubResource("Animation_gymyn")
 }
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_x3wgy"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_6t5aa"]
 size = Vector2(12, 28)
@@ -281,6 +324,12 @@ autoplay = "Idle"
 [node name="hitbox" type="Area2D" parent="."]
 collision_layer = 4
 collision_mask = 2
+
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="hitbox"]
+position = Vector2(10, 0)
+shape = SubResource("RectangleShape2D_x3wgy")
+disabled = true
+debug_color = Color(0.8912226, 1.9059777e-05, 0.60672945, 0.41960785)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="hitbox"]
 position = Vector2(13, -14)

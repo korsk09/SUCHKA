@@ -4,7 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://bbj3t5lhfg8e0" path="res://Assets/murshroom.png" id="1_oxm1g"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_686jm"]
-size = Vector2(20, 33)
+size = Vector2(28, 32)
 
 [sub_resource type="Animation" id="Animation_686jm"]
 length = 0.001
@@ -113,13 +113,13 @@ _data = {
 }
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_oxm1g"]
-size = Vector2(30, 29)
+size = Vector2(30, 31)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_vc1jd"]
 size = Vector2(120, 22.25)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_7rfq8"]
-size = Vector2(28, 32.5)
+size = Vector2(30, 32)
 
 [node name="murshroom" type="CharacterBody2D"]
 script = ExtResource("1_686jm")
@@ -132,7 +132,7 @@ vframes = 6
 frame = 54
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
-position = Vector2(0, -16.5)
+position = Vector2(0, -16)
 shape = SubResource("RectangleShape2D_686jm")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
@@ -145,7 +145,7 @@ collision_layer = 2
 collision_mask = 4
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="HurtBox"]
-position = Vector2(0, -14.5)
+position = Vector2(0, -15.5)
 shape = SubResource("RectangleShape2D_oxm1g")
 debug_color = Color(0.9106125, 0, 0.25694036, 0.41960785)
 
@@ -165,7 +165,7 @@ position = Vector2(-62, -11)
 [node name="ContactDamage" type="Area2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ContactDamage"]
-position = Vector2(0, -15.75)
+position = Vector2(0, -16)
 shape = SubResource("RectangleShape2D_7rfq8")
 debug_color = Color(0.8483696, 0.8249528, 0, 0.41960785)
 

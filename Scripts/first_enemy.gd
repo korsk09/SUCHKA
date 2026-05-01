@@ -10,7 +10,10 @@ var current_hp := 3
 @export var contact_damage := 1
 @export var knockback_force := 200.0
 @export var knockback_time := 0.2
-
+@export var attack_range := 25.0      # дистанция для атаки
+@export var attack_cooldown := 1.0    # пауза между атаками
+var attack_timer := 0.0               # текущий таймер
+var can_attack := true
 
 var knockback_timer := 0.0
 
@@ -20,7 +23,7 @@ var knockback_timer := 0.0
 @onready var right_point = $RightPoint.global_position.x
 
 
-enum State { PATROL, CHASE, HURT, DEAD }
+enum State { PATROL, CHASE, HURT, DEAD, ATTACK }
 var current_state: State = State.PATROL
 var previous_state: State = State.PATROL
 
@@ -33,7 +36,12 @@ func _ready():
 
 
 func _physics_process(delta: float) -> void:
-    
+    # добавь в начало
+    if not can_attack:
+        attack_timer -= delta
+        if attack_timer <= 0:
+            can_attack = true
+            
     apply_gravity(delta)
     update_state()
     handle_state(delta)
@@ -51,15 +59,19 @@ func apply_gravity(delta: float) -> void:
 func update_state() -> void:
     if current_state == State.HURT or current_state == State.DEAD:
         return
+    if current_state == State.ATTACK:
+        return
 
     var target = get_target_player()
     if target == null:
         current_state = State.PATROL
         return
 
-    var distance_to_player = global_position.distance_to(target.global_position)
+    var distance = global_position.distance_to(target.global_position)
 
-    if distance_to_player < 100:
+    if distance < attack_range and can_attack:
+        current_state = State.ATTACK
+    elif distance < 100:
         current_state = State.CHASE
     else:
         current_state = State.PATROL
@@ -79,6 +91,8 @@ func handle_state(delta: float) -> void:
             State.HURT:
                 AudioController.play_zombie_hit()
                 animation_player.play("Hurt")
+            State.ATTACK:
+                animation_player.play("Attack")
             State.DEAD:
                 AudioController.play_zombie_dead()
                 $ContactDamage/CollisionShape2D.set_deferred("disabled", true)
@@ -95,6 +109,8 @@ func handle_state(delta: float) -> void:
     
             if knockback_timer <= 0:
                 velocity.x = 0
+        State.ATTACK:
+            attack_behavior()
         State.DEAD:
             velocity = Vector2.ZERO
 
@@ -128,7 +144,10 @@ func _on_animation_finished(anim_name: String) -> void:
         current_state = State.PATROL
     elif anim_name == "Dead":
         queue_free()
-
+    elif anim_name == "Attack":
+        can_attack = false
+        attack_timer = attack_cooldown
+        current_state = State.CHASE
 
 func _on_hurt_box_area_entered(area: Area2D) -> void:
     if current_state == State.DEAD:
@@ -170,3 +189,15 @@ func get_target_player() -> Node2D:
             closest = p
 
     return closest
+    
+func attack_behavior():
+    velocity.x = 0  # останавливаемся при атаке
+    
+func deal_damage():
+    var target = get_target_player()
+    if target == null:
+        return
+    var distance = global_position.distance_to(target.global_position)
+    if distance < attack_range:
+        var dir = sign(target.global_position.x - global_position.x)
+        target.take_damage(contact_damage, dir)

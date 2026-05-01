@@ -73,4 +73,4 @@ func spawn_loot():
             
             # (Опционально) Если у зелья есть физика, можно подкинуть его немного вверх
             if potion is CharacterBody2D:
-                potion.velocity = Vector2(randf_range(-50, 50), -150)
+                potion.velocity = Vector2(randf_range(-10, 10), -50)
